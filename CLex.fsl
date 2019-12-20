@@ -1,0 +1,111 @@
+{
+ (* File MicroC/CLex.lex
+    Lexer specification for micro-C, a small imperative language
+  *)
+
+module CLex
+  
+open Microsoft.FSharp.Text.Lexing
+open CPar;
+
+let lexemeAsString lexbuf = 
+    LexBuffer<char>.LexemeString lexbuf
+
+(* Scan keywords as identifiers and use this function to distinguish them. *)
+(* If the set of keywords is large, use a hashtable instead.               *)
+
+let keyword s =
+    match s with
+    | "char"    -> CHAR 
+    | "else"    -> ELSE
+    | "false"   -> CSTBOOL 0
+    | "if"      -> IF
+    | "int"     -> INT
+    | "null"    -> NULL
+    | "print"   -> PRINT
+    | "println" -> PRINTLN
+    | "return"  -> RETURN
+    | "true"    -> CSTBOOL 1
+    | "void"    -> VOID 
+    | "while"   -> WHILE         
+    | _         -> NAME s
+ 
+let cEscape s = 
+    match s with 
+    | "\\\\" -> '\\'
+    | "\\\"" -> '\"'
+    | "\\a"  -> '\007'
+    | "\\b"  -> '\008'
+    | "\\t"  -> '\t'
+    | "\\n"  -> '\n'
+    | "\\v"  -> '\011'
+    | "\\f"  -> '\012'
+    | "\\r"  -> '\r'
+    | _      -> failwith "Lexer error: impossible C escape"
+}
+                        
+rule Token = parse
+  | [' ' '\t' '\r'] { Token lexbuf }
+  | '\n'            { lexbuf.EndPos <- lexbuf.EndPos.NextLine; Token lexbuf }
+  | ['0'-'9']+      { CSTINT (System.Int32.Parse (lexemeAsString lexbuf)) }  
+  | ['a'-'z''A'-'Z']['a'-'z''A'-'Z''0'-'9']*
+                    { keyword (lexemeAsString lexbuf) }
+  | '+'             { PLUS } 
+  | '-'             { MINUS } 
+  | '*'             { TIMES } 
+  | '/'             { DIV } 
+  | '%'             { MOD }                     
+  | '='             { ASSIGN } 
+  | "=="            { EQ } 
+  | "!="            { NE }
+  | '>'             { GT }
+  | '<'             { LT }
+  | ">="            { GE }
+  | "<="            { LE }
+  | "||"            { SEQOR }                     
+  | "&&"            { SEQAND }                     
+  | "&"             { AMP }                     
+  | "!"             { NOT }                     
+  | '('             { LPAR }
+  | ')'             { RPAR }
+  | '{'             { LBRACE }
+  | '}'             { RBRACE }
+  | '['             { LBRACK }
+  | ']'             { RBRACK }
+  | ';'             { SEMI }
+  | ','             { COMMA }
+  | "//"            { EndLineComment lexbuf; Token lexbuf }
+  | "/*"            { Comment lexbuf; Token lexbuf }
+  | '"'             { CSTSTRING (String [] lexbuf) }
+  | eof             { EOF }
+  | _               { failwith "Lexer error: illegal symbol" }
+
+and Comment = parse
+   | "/*"           { Comment lexbuf; Comment lexbuf }
+   | "*/"           { () }
+   | '\n'           { lexbuf.EndPos <- lexbuf.EndPos.NextLine; Comment lexbuf }
+   | (eof | '\026') { failwith "Lexer error: unterminated comment" }
+   | _              { Comment lexbuf }
+
+and EndLineComment = parse
+   | '\n'           { lexbuf.EndPos <- lexbuf.EndPos.NextLine }
+   | (eof | '\026') { () }
+   | _              { EndLineComment lexbuf }
+
+and String chars = parse 
+  | '"'
+      { Microsoft.FSharp.Core.String.concat "" (List.map string (List.rev chars)) }
+  | '\\' ['\\' '"' 'a' 'b' 't' 'n' 'v' 'f' 'r']
+      { String (cEscape (lexemeAsString lexbuf) :: chars) lexbuf }
+  | "''" 
+      { String ('\'' :: chars) lexbuf }
+  | '\\'
+      { failwith "Lexer error: illegal escape sequence" }
+  | (eof | '\026')
+      { failwith "Lexer error: unterminated string" }
+  | ['\n' '\r']
+      { failwith "Lexer error: newline in string" }
+  | ['\000'-'\031' '\127' '\255']
+      { failwith "Lexer error: invalid character in string" }
+  | _
+      { String (char (lexbuf.LexemeChar 0) :: chars) lexbuf }
