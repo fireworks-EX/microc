@@ -134,6 +134,7 @@ let bindVar x v (env, nextloc) store : locEnv * store =
 
 //将多个值 xs vs绑定到环境
 //遍历 xs vs 列表,然后调用 bindVar实现单个值的绑定
+
 let rec bindVars xs vs locEnv store : locEnv * store = 
     match (xs, vs) with 
     | ([], [])         -> (locEnv, store)
@@ -223,6 +224,13 @@ let rec exec stmt (locEnv : locEnv) (gloEnv : gloEnv) (store : store) : store =
       
       loop stmts (locEnv, store) 
     | Return _ -> failwith "return not implemented"
+    | For(e1, e2, e3, body) ->                    
+      let (v, store1) = eval e1 locEnv gloEnv store
+      let rec loop store1 =
+              let (v, store2) = eval e2 locEnv gloEnv store1
+              if v<>0 then loop (snd (eval e3 locEnv gloEnv (exec body locEnv gloEnv store2)))
+                      else store2
+      loop store1
 
 and stmtordec stmtordec locEnv gloEnv store = 
     match stmtordec with 
@@ -233,11 +241,42 @@ and stmtordec stmtordec locEnv gloEnv store =
 
 and eval e locEnv gloEnv store : int * store = 
     match e with
+    | PreInc acc     -> let (loc, store1) = access acc locEnv gloEnv store
+                        let tmp = getSto store1 loc
+                        (tmp + 1, setSto store1 loc (tmp + 1)) 
+    | PreDec acc     -> let (loc, store1) = access acc locEnv gloEnv store
+                        let tmp = getSto store1 loc
+                        (tmp - 1, setSto store1 loc (tmp - 1)) 
     | Access acc     -> let (loc, store1) = access acc locEnv gloEnv store
                         (getSto store1 loc, store1) 
     | Assign(acc, e) -> let (loc, store1) = access acc locEnv gloEnv store
                         let (res, store2) = eval e locEnv gloEnv store1
                         (res, setSto store2 loc res) 
+	| PlusAssign(acc, e) ->
+      let (loc, store1) = access acc locEnv gloEnv store
+      let tmp = getSto store1 loc
+      let (res, store2) = eval e locEnv gloEnv store1
+      (tmp + res, setSto store2 loc (tmp+res))
+	| MinusAssign(acc, e) ->
+      let (loc, store1) = access acc locEnv gloEnv store
+      let tmp = getSto store1 loc
+      let (res, store2) = eval e locEnv gloEnv store1
+      (tmp + res, setSto store2 loc (tmp+res))
+	| TimesAssign(acc, e) ->
+      let (loc, store1) = access acc locEnv gloEnv store
+      let tmp = getSto store1 loc
+      let (res, store2) = eval e locEnv gloEnv store1
+      (tmp + res, setSto store2 loc (tmp+res))
+	| DivAssign(acc, e) ->
+      let (loc, store1) = access acc locEnv gloEnv store
+      let tmp = getSto store1 loc
+      let (res, store2) = eval e locEnv gloEnv store1
+      (tmp + res, setSto store2 loc (tmp+res))
+	| ModAssign(acc, e) ->
+      let (loc, store1) = access acc locEnv gloEnv store
+      let tmp = getSto store1 loc
+      let (res, store2) = eval e locEnv gloEnv store1
+      (tmp + res, setSto store2 loc (tmp+res))
     | CstI i         -> (i, store)
     | Addr acc       -> access acc locEnv gloEnv store
     | Prim1(ope, e1) ->
@@ -294,6 +333,8 @@ and evals es locEnv gloEnv store : int list * store =
       (v1::vr, storer) 
     
 and callfun f es locEnv gloEnv store : int * store =
+    printf "callfun: %A\n"  (f, locEnv, gloEnv,store)
+
     let (_, nextloc) = locEnv
     let (varEnv, funEnv) = gloEnv
     let (paramdecs, fBody) = lookup funEnv f

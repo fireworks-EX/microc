@@ -173,6 +173,8 @@ and cStmtOrDec stmtOrDec (varEnv : VarEnv) (funEnv : FunEnv) : VarEnv * instr li
 
 and cExpr (e : expr) (varEnv : VarEnv) (funEnv : FunEnv) : instr list = 
     match e with
+    | PreInc acc     -> cAccess acc varEnv funEnv @ [DUP] @ [LDI] @ [CSTI 1] @ [ADD] @ [STI]
+    | PreDec acc     -> cAccess acc varEnv funEnv @ [DUP] @ [LDI] @ [CSTI 1] @ [SUB] @ [STI]   
     | Access acc     -> cAccess acc varEnv funEnv @ [LDI] 
     | Assign(acc, e) -> cAccess acc varEnv funEnv @ cExpr e varEnv funEnv @ [STI]
     | CstI i         -> [CSTI i]
@@ -256,7 +258,7 @@ let cProgram (Prog topdecs) : instr list =
         let code = cStmt body (envf, fdepthf) funEnv
         [Label labf] @ code @ [RET (List.length paras-1)]
     let functions = 
-        List.choose (function 
+        List.choose (function  
                          | Fundec (rTy, name, argTy, body) 
                                     -> Some (compilefun (rTy, name, argTy, body))
                          | Vardec _ -> None)

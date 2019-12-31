@@ -1,18 +1,20 @@
-﻿Compiling and loading the micro-C evaluator and parser (MicroC/README.TXT)
---------------------------------------------------------------------------
 
-Archive microc.zip contains the files used in points A, B and C below.
+本次实验需要使用.Net Core 3
+请先安装，并安装fslex fsyacc 10.0.0.0版本
 
-Linux下fsi为
 
-mono /usr/lib/cli/fsharp/fsi.exe 
+Linux下安装 fsharp 
 
-window 安装
-https://dotnet.microsoft.com/download/dotnet-core/3.0
+参考 http://10.66.27.234:8090/#/ocaml/install?id=linux-ubuntu-fsharp-fslex-fsyacc-install
 
->dotnet  --list-sdks
-3.0.100 [C:\Program Files\dotnet\sdk]
-表示安装正确
+window下 安装 fsharp fslex fsyacc
+
+参考 http://10.66.27.234:8090/#/ocaml/install?id=windows
+
+http://10.66.27.234:8090/#/ocaml/install?id=windows-fslexyacc-install
+
+
+fsi ==> dotnet fsi
 
 
 A. 生成词法扫描器 和 语法分析器 解释执行 Generating and compiling the lexer and parser for micro-C, and
@@ -21,18 +23,15 @@ A. 生成词法扫描器 和 语法分析器 解释执行 Generating and compili
    can see this is due to a bug in fsyacc, which ignores the %nonassoc
    directives on GT LT GE LE).
 
-   fslex --unicode CLex.fsl
-   fsyacc --module CPar CPar.fsy
+   fslex  --lexlib Microsoft.FSharp.Text.Lexing  --unicode CLex.fsl
+   fsyacc --lexlib Microsoft.FSharp.Text.Lexing --parslib  Microsoft.FSharp.Text.Parsing --module CPar CPar.fsy
    
-   //启动fsi
-   fsi -r FsLexYacc.Runtime.dll Absyn.fs CPar.fs CLex.fs Parse.fs Interp.fs ParseAndRun.fs
-
+ 
    //linux
    mono /usr/lib/cli/fsharp/fsi.exe -r FsLexYacc.Runtime.dll Absyn.fs CPar.fs CLex.fs Parse.fs Interp.fs ParseAndRun.fs
 
-   // dotnet core 3 
+   // windows dotnet core 3 
    dotnet fsi -r FsLexYacc.Runtime.dll Absyn.fs CPar.fs CLex.fs Parse.fs Interp.fs ParseAndRun.fs
-
 
    //fsi 中输入
    open ParseAndRun;;
@@ -40,22 +39,22 @@ A. 生成词法扫描器 和 语法分析器 解释执行 Generating and compili
    run (fromFile "ex1.c") [17];; //解释执行 ex1.c
    run (fromFile "ex11.c") [8];; //解释执行 ex11.c
 	
-   //或者用fsharp脚本, 3为 ex9 的参数.
-   fsi InterpC.fsx ex9.c 3  
-
     //编译microc.exe 命令行程序 
-   //注意 microc.exe.config文件里面对老版本 Fsharp.Core的重定向
-   fsc microc.fsx
-   microc.exe ex9.c
-   
+   dotnet clean  interpc.fsproj
+   dotnet build  interpc.fsproj
+   dotnet run -p interpc.fsproj ex11 8
+
+   interpc -> ./bin/Debug/netcoreapp3.0/interpc
+
+
    
 B. 编译 micro-C编译器，运行编译器 To compile and use the micro-C compiler
 
-   fslex --unicode CLex.fsl
-   fsyacc --module CPar CPar.fsy
+   fslex  --lexlib FSharp.Text.Lexing  --unicode CLex.fsl
+   fsyacc --lexlib FSharp.Text.Lexing --parslib  FSharp.Text.Parsing --module CPar CPar.fsy
    
    //启动fsi
-   fsi -r FsLexYacc.Runtime.dll Absyn.fs CPar.fs CLex.fs Parse.fs Machine.fs Comp.fs ParseAndComp.fs   
+   dotnet fsi -r FsLexYacc.Runtime.dll Absyn.fs CPar.fs CLex.fs Parse.fs Machine.fs Comp.fs ParseAndComp.fs   
 
    //fsi 中输入，运行编译器
    open ParseAndComp;;
@@ -78,31 +77,40 @@ B. 编译 micro-C编译器，运行编译器 To compile and use the micro-C comp
    java Machinetrace ex9.out 3
   
    //编译microc.exe 命令行程序 
-   //注意 microc.exe.config文件里面对老版本 Fsharp.Core的重定向
-   fsc microc.fsx
-   microc.exe ex9.c
+   dotnet clean  microc.fsproj
+   dotnet build  microc.fsproj
+   dotnet run -p microc.fsproj
+    
+   microc ->  /bin/Debug/netcoreapp3.0/microc
     
    
    
 C. 编译backwards编译器  To compile and use the backwards (continuation-based) micro-C compiler:
 
-   fslex --unicode CLex.fsl
-   fsyacc --module CPar CPar.fsy
+   fslex  --lexlib FSharp.Text.Lexing  --unicode CLex.fsl
+   fsyacc --lexlib FSharp.Text.Lexing --parslib  FSharp.Text.Parsing --module CPar CPar.fsy
+
    fsi -r FsLexYacc.Runtime.dll Absyn.fs CPar.fs CLex.fs Parse.fs Machine.fs Contcomp.fs ParseAndContcomp.fs   
 
    open ParseAndContcomp;;
    contCompileToFile (fromFile "ex11.c") "ex11.out";;
    #q;;
 
+   
    javac Machine.java
    java Machine ex11.out 8
 
 
 D. 构建命令行编译器 microcc.exe Build the backwards micro-C compiler as a command-line program microcc
 
-   fslex --unicode CLex.fsl
-   fsyacc --module CPar CPar.fsy
-   fsc -r FsLexYacc.Runtime.dll Absyn.fs CPar.fs CLex.fs Parse.fs Machine.fs Contcomp.fs MicroCC.fs -o microcc.exe
+   fslex  --lexlib FSharp.Text.Lexing  --unicode CLex.fsl
+   fsyacc --lexlib FSharp.Text.Lexing --parslib  FSharp.Text.Parsing --module CPar CPar.fsy
+   
+   dotnet clean  microcc.fsproj
+   dotnet build  microcc.fsproj
+   dotnet run -p microcc.fsproj
+
+   microcc ->  /bin/Debug/netcoreapp3.0/microcc
 
    microcc ex11.c
 

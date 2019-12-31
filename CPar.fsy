@@ -17,22 +17,25 @@ let nl = CstI 10
 %token <int> CSTINT CSTBOOL
 %token <string> CSTSTRING NAME
 
-%token CHAR ELSE IF INT NULL PRINT PRINTLN RETURN VOID WHILE
+%token CHAR ELSE IF INT NULL PRINT PRINTLN RETURN VOID WHILE FOR
+%token PREINC PREDEC
 %token PLUS MINUS TIMES DIV MOD
 %token EQ NE GT LT GE LE
 %token NOT SEQOR SEQAND
+%token PLUSASSIGN MINUSASSIGN TIMESASSIGN DIVASSIGN MODASSIGN
 %token LPAR RPAR LBRACE RBRACE LBRACK RBRACK SEMI COMMA ASSIGN AMP
 %token EOF
 
 %right ASSIGN             /* lowest precedence */
 %nonassoc PRINT
+%right PLUSASSIGN MINUSASSIGN TIMESASSIGN DIVASSIGN MODASSIGN
 %left SEQOR
 %left SEQAND
 %left EQ NE 
 %nonassoc GT LT GE LE
 %left PLUS MINUS
 %left TIMES DIV MOD 
-%nonassoc NOT AMP 
+%nonassoc PREINC PREDEC NOT AMP 
 %nonassoc LBRACK          /* highest precedence  */
 
 %start Main
@@ -103,12 +106,16 @@ StmtM:  /* No unbalanced if-else */
   | Block                               { $1                   }
   | IF LPAR Expr RPAR StmtM ELSE StmtM  { If($3, $5, $7)       }
   | WHILE LPAR Expr RPAR StmtM          { While($3, $5)        }
+  | FOR LPAR Expr SEMI Expr SEMI Expr RPAR StmtM  { For($3, $5, $7, $9) }
+
 ;
 
 StmtU:
     IF LPAR Expr RPAR StmtM ELSE StmtU  { If($3, $5, $7)       }
   | IF LPAR Expr RPAR Stmt              { If($3, $5, Block []) }
   | WHILE LPAR Expr RPAR StmtU          { While($3, $5)        }
+  | FOR LPAR Expr SEMI Expr SEMI Expr RPAR StmtU  { For($3, $5, $7, $9) }
+
 ;
 
 Expr: 
@@ -118,6 +125,13 @@ Expr:
 
 ExprNotAccess:
     AtExprNotAccess                     { $1                  }
+  | PREINC Access                       { PreInc $2           } 
+  | PREDEC Access                       { PreDec $2           } 
+  | Access PLUSASSIGN Expr              { PlusAssign($1, $3)   }
+  | Access MINUSASSIGN Expr             { MinusAssign($1, $3)   }
+  | Access TIMESASSIGN Expr             { TimesAssign($1, $3)   }
+  | Access DIVASSIGN Expr               { DivAssign($1, $3)   }
+  | Access MODASSIGN Expr               { ModAssign($1, $3)   }
   | Access ASSIGN Expr                  { Assign($1, $3)      }
   | NAME LPAR Exprs RPAR                { Call($1, $3)        }  
   | NOT Expr                            { Prim1("!", $2)      }
