@@ -44,8 +44,8 @@ type token =
   | PRINTLN
   | RETURN
   | VOID
-  | WHILE
   | FOR
+  | WHILE
   | CSTSTRING of (string)
   | NAME of (string)
   | CSTINT of (int)
@@ -94,8 +94,8 @@ type tokenId =
     | TOKEN_PRINTLN
     | TOKEN_RETURN
     | TOKEN_VOID
-    | TOKEN_WHILE
     | TOKEN_FOR
+    | TOKEN_WHILE
     | TOKEN_CSTSTRING
     | TOKEN_NAME
     | TOKEN_CSTINT

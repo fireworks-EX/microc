@@ -29,8 +29,8 @@ let keyword s =
     | "return"  -> RETURN
     | "true"    -> CSTBOOL 1
     | "void"    -> VOID 
-    | "while"   -> WHILE  
-    | "for"     -> FOR       
+    | "for"     -> FOR   
+    | "while"   -> WHILE       
     | _         -> NAME s
  
 let cEscape s = 

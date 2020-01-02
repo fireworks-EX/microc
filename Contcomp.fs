@@ -190,6 +190,14 @@ let rec cStmt stmt (varEnv : VarEnv) (funEnv : FunEnv) (C : instr list) : instr 
       let (labelse, C2) = addLabel (cStmt stmt2 varEnv funEnv C1)
       cExpr e varEnv funEnv (IFZERO labelse 
        :: cStmt stmt1 varEnv funEnv (addJump jumpend C2))
+    | For(e1, e2, e3, body) ->         
+      let labbegin = newLabel()
+      let (jumptest, C1) = 
+           makeJump (cExpr e2 varEnv funEnv (IFNZRO labbegin :: C))
+      cExpr e1 varEnv funEnv 
+        (addINCSP -1 (addJump jumptest 
+           (Label labbegin :: cStmt body varEnv funEnv
+             (cExpr e3 varEnv funEnv (addINCSP -1 C1)))))
     | While(e, body) ->
       let labbegin = newLabel()
       let (jumptest, C1) = 
@@ -242,8 +250,20 @@ and bStmtordec stmtOrDec varEnv : bstmtordec * VarEnv =
 
 and cExpr (e : expr) (varEnv : VarEnv) (funEnv : FunEnv) (C : instr list) : instr list =
     match e with
+    | PreInc acc     -> cAccess acc varEnv funEnv (DUP :: LDI :: CSTI 1 :: ADD :: STI :: C)
+    | PreDec acc     -> cAccess acc varEnv funEnv (DUP :: LDI :: CSTI 1 :: SUB :: STI :: C)
     | Access acc     -> cAccess acc varEnv funEnv (LDI :: C)
     | Assign(acc, e) -> cAccess acc varEnv funEnv (cExpr e varEnv funEnv (STI :: C))
+    | AssignPrim(ope, acc, e) ->
+      cAccess acc varEnv funEnv
+        (GETBP :: LDI :: cExpr e varEnv funEnv
+           (match ope with
+            | "+="  -> ADD :: STI :: C
+            | "-="  -> SUB :: STI :: C
+            | "*="  -> MUL :: STI :: C
+            | "/="  -> DIV :: STI :: C
+            | "%="  -> MOD :: STI :: C
+            | _     -> failwith "unknown assign-primitive"))
     | CstI i         -> addCST i C
     | Addr acc       -> cAccess acc varEnv funEnv C
     | Prim1(ope, e1) ->
@@ -269,6 +289,10 @@ and cExpr (e : expr) (varEnv : VarEnv) (funEnv : FunEnv) (C : instr list) : inst
             | ">"   -> SWAP :: LT :: C
             | "<="  -> SWAP :: LT :: addNOT C
             | _     -> failwith "unknown primitive 2"))
+    | Prim3(e1, e2, e3) ->
+      let (jumpend, C1) = makeJump C
+      let (labfalse, C2) = addLabel (cExpr e3 varEnv funEnv C1)
+      cExpr e1 varEnv funEnv (IFZERO labfalse :: cExpr e2 varEnv funEnv (addJump jumpend C2))	
     | Andalso(e1, e2) ->
       match C with
       | IFZERO lab :: _ ->

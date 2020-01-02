@@ -232,11 +232,6 @@ and stmtordec stmtordec locEnv gloEnv store =
     match stmtordec with 
     | Stmt stmt   -> (locEnv, exec stmt locEnv gloEnv store)
     | Dec(typ, x) -> allocate (typ, x) locEnv store
-    | DecAssign(typ, x,expr) -> let acc = AccVar x
-                                let (v,store1) =  eval expr locEnv gloEnv store
-                                let (locEnv1,store2) = allocate (typ, x) locEnv store1
-                                let (loc, store3) = access acc locEnv1 gloEnv store2
-                                (locEnv1,setSto store3 loc v)
 
 (* Evaluating micro-C expressions *)
 

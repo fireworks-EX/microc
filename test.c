@@ -3,5 +3,5 @@ void main(){
 	int j; 
 	i=0; 
 	j=3; 
-	(j>i)?print 5:print 2;
+	j>i?print 5:print 2;
 }
