@@ -74,7 +74,7 @@ fsharpi -r FsLexYacc.Runtime.dll Absyn.fs CPar.fs CLex.fs Parse.fs Machine.fs Co
 - 注：  
 
   - `fromString`：从字符串中进行编译
-- `fromFile`：从文件中进行编译
+  - `fromFile`：从文件中进行编译
   
   - `compileToFile`：生成中间表示
 
@@ -97,17 +97,17 @@ fsharpi -r FsLexYacc.Runtime.dll Absyn.fs CPar.fs CLex.fs Parse.fs Machine.fs Co
     ```
     
     - 解释执行+语法树： 
-      ![](I1.JPG)
+      ![](I1.jpg)
     
     - 编译执行： 
     
-    - ![](C.JPG)
+    - ![](C.jpg)
     
-      ![](OUT.JPG)
+      ![](out.jpg)
     
     - 查看栈帧：
     
-      ![](T1.JPG)
+      ![](T1.jpg)
 
 ---
 - ### +=、-=、*=、/=、%=
@@ -135,17 +135,17 @@ fsharpi -r FsLexYacc.Runtime.dll Absyn.fs CPar.fs CLex.fs Parse.fs Machine.fs Co
     ```
 
     - 解释执行+语法树： 
-      ![](I2.JPG)
+      ![](I2.jpg)
 
     - 编译执行： 
 
-    - ![](C.JPG)
+    - ![](C.jpg)
 
-      ![](OUT.JPG)
+      ![](out.jpg)
 
     - 查看栈帧：
 
-      ![](T2.JPG)
+      ![](T2.jpg)
 ---
 - ### for循环
 
@@ -160,17 +160,17 @@ fsharpi -r FsLexYacc.Runtime.dll Absyn.fs CPar.fs CLex.fs Parse.fs Machine.fs Co
   ```
 
   - 解释执行+语法树： 
-    ![](I3.JPG)
+    ![](I3.jpg)
 
   - 编译执行： 
 
-  - ![](C.JPG)
+  - ![](C.jpg)
 
-    ![](OUT.JPG)
+    ![](out.jpg)
 
   - 查看栈帧：
 
-    ![](T4.JPG)
+    ![](T4.jpg)
 
 ------
 
@@ -190,17 +190,17 @@ fsharpi -r FsLexYacc.Runtime.dll Absyn.fs CPar.fs CLex.fs Parse.fs Machine.fs Co
   ```
 
   - 解释执行+语法树： 
-    ![](I4.JPG)
+    ![](I4.jpg)
 
   - 编译执行： 
 
-  - ![](C.JPG)
+  - ![](C.jpg)
 
-    ![](OUT.JPG)
+    ![](out.jpg)
 
   - 查看栈帧：
 
-    ![](T3.JPG)
+    ![](T3.jpg)
 
 ------
 
