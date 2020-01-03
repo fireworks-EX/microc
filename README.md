@@ -71,12 +71,23 @@ fsharpi -r FsLexYacc.Runtime.dll Absyn.fs CPar.fs CLex.fs Parse.fs Machine.fs Co
   java Machinetrace test.out
   java Machinetrace for.out
 
-- 注：  
+-  注：
 
   - `fromString`：从字符串中进行编译
+  
   - `fromFile`：从文件中进行编译
   
   - `compileToFile`：生成中间表示
+  
+  - 解释执行
+  
+    ![](Interp.jpg)
+  
+  - 编译执行
+  
+    ![](compile.jpg)
+  
+    
 
 
 ## 功能实现
@@ -139,7 +150,7 @@ fsharpi -r FsLexYacc.Runtime.dll Absyn.fs CPar.fs CLex.fs Parse.fs Machine.fs Co
 
     - 编译执行： 
 
-    - ![](C.jpg)
+      ![](C.jpg)
 
       ![](out.jpg)
 
@@ -214,5 +225,5 @@ fsharpi -r FsLexYacc.Runtime.dll Absyn.fs CPar.fs CLex.fs Parse.fs Machine.fs Co
 
 ## 心得感想
 
-一学期过得很快，从开始对编译原理一窍不通，通过一学期的学习，慢慢变得一知半解，自认为远远说不上了解与熟练，还有很大的空间可以精进。这学期大作业有5个，最后为了完成作业，时间着实有点赶，对于编译原理有很多地方来不及深思便囫囵吞枣，最终只完成了基础部分的语法也着实有些可惜。虽说平时这门课可能用不太上，但是通过这门学到的思想我想对于将来的学习、工作亦或是生活都必带来裨益吧。
+一学期过得很快，从开始对编译原理一窍不通，通过一学期的学习，慢慢变得一知半解，自认为远远说不上了解与熟练，还有很大的空间可以精进。这学期大作业有5个，最后为了完成作业，时间着实有点赶，对于编译原理有很多地方来不及深思便囫囵吞枣，最终只完成了基础部分的语法也着实有些可惜。虽说平时这门课平时可能用不太上，但是在这个过程中虽然不多但也对于语言的基础有了更深入的了解，而且对于通过这门学到的思想我想对于将来的学习、工作亦或是生活都必带来裨益吧。
 
