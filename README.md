@@ -29,7 +29,7 @@
   - `CPar.fsy`——生成`CPar.fs`语法分析器
   - `Interp.fs`——解释器
   - `Compile.fs`——编译器
-- 后端：由`Java`语言编写而成（老师提供）
+- 后端：由`Java`语言编写而成
   - `Machine.java`生成`Machine.class`虚拟机与`Machinetrace.class`堆栈追踪
 - 测试集：测试程序 ++--.c、+=-=.c、for.c、test.c
 - 库：`.net`支持
@@ -94,6 +94,7 @@ fsharpi -r FsLexYacc.Runtime.dll Absyn.fs CPar.fs CLex.fs Parse.fs Machine.fs Co
 - ### 自增自减(++、--)
 
 - 例子：
+    
     ```C
     //++--.c
     void main(){
@@ -108,8 +109,9 @@ fsharpi -r FsLexYacc.Runtime.dll Absyn.fs CPar.fs CLex.fs Parse.fs Machine.fs Co
     ```
     
     - 解释执行+语法树： 
-      ![](I1.jpg)
-    
+      
+    ![](I1.jpg)
+      
     - 编译执行： 
     
     - ![](C.jpg)
@@ -166,7 +168,7 @@ fsharpi -r FsLexYacc.Runtime.dll Absyn.fs CPar.fs CLex.fs Parse.fs Machine.fs Co
   //for.c
   void main(){
   	int i;
-  	for(i=0;i<10;++i) {{print i;}}
+  	for(i=0;i<10;++i) {print i;}
   }
   ```
 
